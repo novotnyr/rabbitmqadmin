@@ -28,10 +28,10 @@ public class RabbitmqAdmin {
     @Option(name = "-H")
     private String host = com.rabbitmq.client.ConnectionFactory.DEFAULT_HOST;
 
-    @Option(name = "-u")
+    @Option(name = "-u", aliases = "--user")
     private String user = DEFAULT_USER;
 
-    @Option(name = "-p")
+    @Option(name = "-p", aliases = "--password")
     private String password = DEFAULT_PASS;
 
     @Option(name = "-type")
@@ -46,7 +46,7 @@ public class RabbitmqAdmin {
     @Option(name = "-autodelete")
     private boolean autoDelete = false;
 
-    @Option(name = "-V")
+    @Option(name = "-V", aliases = "--virtual-host")
     private String virtualHost = "/";
 
     @Option(name = "-source")
@@ -58,13 +58,13 @@ public class RabbitmqAdmin {
     @Option(name = "-routing_key")
     private String routingKey;
 
-    @Option(name = "-data-binary")
+    @Option(name = "-data_binary", aliases = "--data-binary")
     private String binaryData;
 
-    @Option(name = "-content-type")
+    @Option(name = "-content_type", aliases = "--content-type")
     private String contentType;
 
-    @Option(name = "-reply-to")
+    @Option(name = "-reply_to", aliases = "--reply-to")
     private String replyTo;
 
     @Argument
