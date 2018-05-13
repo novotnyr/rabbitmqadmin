@@ -35,7 +35,7 @@ public class RabbitmqAdmin {
     private String password = DEFAULT_PASS;
 
     @Option(name = "-type")
-    private String type;
+    private String exchangeType;
 
     @Option(name = "-name")
     private String name;
@@ -164,7 +164,7 @@ public class RabbitmqAdmin {
                 DeclareExchange declareExchange = new DeclareExchange();
                 declareExchange.setConfiguration(rabbitConfiguration);
                 declareExchange.setName(this.name);
-                declareExchange.setType(this.type);
+                declareExchange.setType(this.exchangeType);
                 declareExchange.setAutoDelete(this.autoDelete);
                 declareExchange.setDurable(this.durable);
 
