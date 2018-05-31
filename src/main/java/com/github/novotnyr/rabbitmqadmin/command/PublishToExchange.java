@@ -12,7 +12,7 @@ import java.util.Base64;
 public class PublishToExchange extends AbstractRestCommand<PublishToExchangeResponse> {
     private static final Type TYPE_TOKEN = new TypeToken<PublishToExchangeResponse>(){}.getType();
 
-    private String exchange = "";
+    private String exchange = "amq.default";
 
     private String routingKey;
 
