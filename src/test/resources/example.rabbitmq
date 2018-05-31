@@ -1,0 +1,13 @@
+---
+host: localhost
+user: guest
+password: guest
+protocol: http
+vhost: /
+---
+publish: amq.default
+routing-key: cabbage
+json: >
+  {
+      "hello" : "hello"
+  }

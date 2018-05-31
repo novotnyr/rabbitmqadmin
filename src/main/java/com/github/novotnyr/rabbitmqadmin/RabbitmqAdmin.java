@@ -2,6 +2,7 @@ package com.github.novotnyr.rabbitmqadmin;
 
 import com.github.novotnyr.rabbitmqadmin.command.DeclareBinding;
 import com.github.novotnyr.rabbitmqadmin.command.DeclareExchange;
+import com.github.novotnyr.rabbitmqadmin.command.ExecuteScript;
 import com.github.novotnyr.rabbitmqadmin.command.ListExchanges;
 import com.github.novotnyr.rabbitmqadmin.command.ListQueues;
 import com.github.novotnyr.rabbitmqadmin.command.PublishToExchange;
@@ -67,6 +68,9 @@ public class RabbitmqAdmin {
     @Option(name = "-reply_to", aliases = "--reply-to")
     private String replyTo;
 
+    @Option(name = "-f", aliases = "--script")
+    private String scriptFile;
+
     @Argument
     private List<String> arguments = new ArrayList<String>();
 
@@ -122,9 +126,18 @@ public class RabbitmqAdmin {
             case "whoami" :
                 handleWhoAmI(parser, arguments);
                 break;
+            case "exec" :
+                handleExecuteScript(parser, arguments);
+                break;
             default:
                 throw new CmdLineException(parser, "Unknown command " + command);
         }
+    }
+
+    private void handleExecuteScript(CmdLineParser parser, List<String> arguments) {
+        ExecuteScript executeScript = new ExecuteScript(this.rabbitConfiguration);
+        executeScript.setScriptFile(this.scriptFile);
+        executeScript.run();
     }
 
     private void handleWhoAmI(CmdLineParser parser, List<String> arguments) {
