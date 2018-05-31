@@ -1,6 +1,7 @@
 package com.github.novotnyr.rabbitmqadmin.command;
 
 import com.github.novotnyr.rabbitmqadmin.RabbitConfiguration;
+import com.github.novotnyr.rabbitmqadmin.util.UrlEncoder;
 import com.google.gson.reflect.TypeToken;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -28,7 +29,7 @@ public class PublishToExchange extends AbstractRestCommand<PublishToExchangeResp
 
     @Override
     protected String getUrlSuffix() {
-        return "/exchanges/" + getVirtualHost() + "/" + this.exchange + "/publish";
+        return "/exchanges/" + UrlEncoder.encode(getVirtualHost()) + "/" + this.exchange + "/publish";
     }
 
     protected Request buildRequest() {
