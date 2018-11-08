@@ -34,9 +34,13 @@ public class ExecuteScript {
                 return;
             }
 
-            Map<String, Object> firstScript = (Map<String, Object>) iterator.next();
-            if (firstScript.containsKey("publish")) {
-                handlePublishToExchange(rabbitConfiguration, firstScript);
+            while (iterator.hasNext()) {
+                Map<String, Object> scriptDocument = (Map<String, Object>) iterator.next();
+                if (scriptDocument.containsKey("publish")) {
+                    handlePublishToExchange(rabbitConfiguration, scriptDocument);
+                } else {
+                    System.err.println("Unsupported command type in " + this.scriptFile);
+                }
             }
 
         } catch (FileNotFoundException e) {
@@ -53,6 +57,9 @@ public class ExecuteScript {
             command.setContentType("application/json");
         } else {
             command.encodeAndSetUtf8Contents((String) script.get("payload"));
+        }
+        if (script.containsKey("reply-to")) {
+            command.setReplyTo((String) script.get("reply-to"));
         }
 
         command.run();
