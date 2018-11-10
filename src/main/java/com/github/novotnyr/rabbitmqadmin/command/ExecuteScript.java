@@ -1,6 +1,8 @@
 package com.github.novotnyr.rabbitmqadmin.command;
 
 import com.github.novotnyr.rabbitmqadmin.RabbitConfiguration;
+import com.github.novotnyr.rabbitmqadmin.log.StdErr;
+import com.github.novotnyr.rabbitmqadmin.log.SystemErr;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.FileNotFoundException;
@@ -9,6 +11,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class ExecuteScript {
+    private StdErr stdErr = new SystemErr();
+
     private final RabbitConfiguration rabbitConfiguration;
 
     private String scriptFile;
@@ -23,14 +27,14 @@ public class ExecuteScript {
             Iterable<Object> documents = (Iterable<Object>) yaml.loadAll(new FileReader(this.scriptFile));
             Iterator<Object> iterator = documents.iterator();
             if (!iterator.hasNext()) {
-                System.err.println("No configuration section in script");
+                stdErr.println("No configuration section in script");
                 return;
             }
             Map<String, Object> configuration = (Map<String, Object>) iterator.next();
             RabbitConfiguration rabbitConfiguration = parseConfiguration(configuration);
 
             if (!iterator.hasNext()) {
-                System.err.println("No script section in script");
+                stdErr.println("No script section in script");
                 return;
             }
 
@@ -39,12 +43,12 @@ public class ExecuteScript {
                 if (scriptDocument.containsKey("publish")) {
                     handlePublishToExchange(rabbitConfiguration, scriptDocument);
                 } else {
-                    System.err.println("Unsupported command type in " + this.scriptFile);
+                    stdErr.println("Unsupported command type in " + this.scriptFile);
                 }
             }
 
         } catch (FileNotFoundException e) {
-            System.err.println("Cannot find script " + this.scriptFile);
+            stdErr.println("Cannot find script " + this.scriptFile);
         }
     }
 
@@ -75,8 +79,11 @@ public class ExecuteScript {
         return configuration;
     }
 
-
     public void setScriptFile(String scriptFile) {
         this.scriptFile = scriptFile;
+    }
+
+    public void setStdErr(StdErr stdErr) {
+        this.stdErr = stdErr;
     }
 }
