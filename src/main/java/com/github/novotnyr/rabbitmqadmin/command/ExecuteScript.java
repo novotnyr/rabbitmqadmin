@@ -37,6 +37,9 @@ public class ExecuteScript {
                 if (scriptDocument.containsKey("publish")) {
                     PublishToExchange publishToExchange = parsePublishToExchange(rabbitConfiguration, scriptDocument);
                     script.append(publishToExchange);
+                } else if (scriptDocument.containsKey("get")) {
+                    GetMessage getMessage = parseGetMessage(rabbitConfiguration, scriptDocument);
+                    script.append(getMessage);
                 } else {
                     stdErr.println("Unsupported command type in " + this.scriptFile);
                 }
@@ -63,7 +66,8 @@ public class ExecuteScript {
 
     public void doRun(Script script) {
         for (Command<?> command : script.getCommands()) {
-            command.run();
+            Object result = command.run();
+            stdErr.println(result.toString());
         }
     }
 
@@ -82,6 +86,13 @@ public class ExecuteScript {
         }
         return command;
     }
+
+    private GetMessage parseGetMessage(RabbitConfiguration rabbitConfiguration, Map<String, Object> script) {
+        GetMessage command = new GetMessage(rabbitConfiguration);
+        command.setQueue((String) script.get("get"));
+        return command;
+    }
+
 
     private RabbitConfiguration parseConfiguration(Map<String, Object> configurationMap) {
         RabbitConfiguration configuration = new RabbitConfiguration();

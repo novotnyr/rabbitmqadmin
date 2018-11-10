@@ -22,7 +22,7 @@ public abstract class AbstractRestCommand<T> implements Command<T> {
 
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    private Gson gson = new Gson();
+    private Gson gson;
 
     private int port = DEFAULT_PORT;
 
@@ -30,7 +30,12 @@ public abstract class AbstractRestCommand<T> implements Command<T> {
 
     public AbstractRestCommand(RabbitConfiguration rabbitConfiguration) {
         this.rabbitConfiguration = rabbitConfiguration;
+        this.gson = buildGson();
     }
+
+    protected Gson buildGson() {
+        return new Gson();
+    };
 
     public T run() {
         try {
