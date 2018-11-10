@@ -1,6 +1,7 @@
 package com.github.novotnyr.rabbitmqadmin.command;
 
 import com.github.novotnyr.rabbitmqadmin.RabbitConfiguration;
+import com.github.novotnyr.rabbitmqadmin.command.script.Script;
 import com.github.novotnyr.rabbitmqadmin.log.StdErr;
 import com.github.novotnyr.rabbitmqadmin.log.SystemErr;
 import org.yaml.snakeyaml.Yaml;
@@ -23,36 +24,50 @@ public class ExecuteScript {
 
     public void run() {
         try {
+            Script script = new Script();
+
             Yaml yaml = new Yaml();
             Iterable<Object> documents = (Iterable<Object>) yaml.loadAll(new FileReader(this.scriptFile));
             Iterator<Object> iterator = documents.iterator();
-            if (!iterator.hasNext()) {
-                stdErr.println("No configuration section in script");
-                return;
-            }
             Map<String, Object> configuration = (Map<String, Object>) iterator.next();
-            RabbitConfiguration rabbitConfiguration = parseConfiguration(configuration);
-
-            if (!iterator.hasNext()) {
-                stdErr.println("No script section in script");
-                return;
-            }
+            script.setConfiguration(parseConfiguration(configuration));
 
             while (iterator.hasNext()) {
                 Map<String, Object> scriptDocument = (Map<String, Object>) iterator.next();
                 if (scriptDocument.containsKey("publish")) {
-                    handlePublishToExchange(rabbitConfiguration, scriptDocument);
+                    PublishToExchange publishToExchange = parsePublishToExchange(rabbitConfiguration, scriptDocument);
+                    script.append(publishToExchange);
                 } else {
                     stdErr.println("Unsupported command type in " + this.scriptFile);
                 }
             }
-
+            validate(script);
+            doRun(script);
         } catch (FileNotFoundException e) {
             stdErr.println("Cannot find script " + this.scriptFile);
         }
     }
 
-    private void handlePublishToExchange(RabbitConfiguration rabbitConfiguration, Map<String, Object> script) {
+    public boolean validate(Script script) {
+        if (script.getConfiguration() == null) {
+            stdErr.println("No RabbitMQ connection configuration in script");
+            return false;
+        }
+        if (script.getCommands().isEmpty()) {
+            stdErr.println("No script section in script");
+            return false;
+        }
+
+        return true;
+    }
+
+    public void doRun(Script script) {
+        for (Command<?> command : script.getCommands()) {
+            command.run();
+        }
+    }
+
+    private PublishToExchange parsePublishToExchange(RabbitConfiguration rabbitConfiguration, Map<String, Object> script) {
         PublishToExchange command = new PublishToExchange(rabbitConfiguration);
         command.setRoutingKey((String) script.get("routing-key"));
         command.setExchange((String) script.get("publish"));
@@ -65,8 +80,7 @@ public class ExecuteScript {
         if (script.containsKey("reply-to")) {
             command.setReplyTo((String) script.get("reply-to"));
         }
-
-        command.run();
+        return command;
     }
 
     private RabbitConfiguration parseConfiguration(Map<String, Object> configurationMap) {

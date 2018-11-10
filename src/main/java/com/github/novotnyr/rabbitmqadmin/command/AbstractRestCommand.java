@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
-public abstract class AbstractRestCommand<T> {
+public abstract class AbstractRestCommand<T> implements Command<T> {
     public final Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final int DEFAULT_PORT = 15672;
