@@ -8,7 +8,9 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public class ExecuteScript {
@@ -17,6 +19,10 @@ public class ExecuteScript {
     private final RabbitConfiguration rabbitConfiguration;
 
     private String scriptFile;
+
+    private List<Integer> excludedCommandIndices = new ArrayList<>();
+
+    private List<Integer> includedCommandIndices = new ArrayList<>();
 
     public ExecuteScript(RabbitConfiguration rabbitConfiguration) {
         this.rabbitConfiguration = rabbitConfiguration;
@@ -30,7 +36,8 @@ public class ExecuteScript {
             Iterable<Object> documents = (Iterable<Object>) yaml.loadAll(new FileReader(this.scriptFile));
             Iterator<Object> iterator = documents.iterator();
             Map<String, Object> configuration = (Map<String, Object>) iterator.next();
-            script.setConfiguration(parseConfiguration(configuration));
+            RabbitConfiguration rabbitConfiguration = parseConfiguration(configuration);
+            script.setConfiguration(rabbitConfiguration);
 
             while (iterator.hasNext()) {
                 Map<String, Object> scriptDocument = (Map<String, Object>) iterator.next();
@@ -65,9 +72,16 @@ public class ExecuteScript {
     }
 
     public void doRun(Script script) {
+        int index = 0;
         for (Command<?> command : script.getCommands()) {
-            Object result = command.run();
-            stdErr.println(result.toString());
+            if (excludedCommandIndices.contains(index)) {
+                continue;
+            }
+            if (includedCommandIndices.isEmpty() || includedCommandIndices.contains(index)) {
+                Object result = command.run();
+                stdErr.println(result.toString());
+            }
+            index++;
         }
     }
 
@@ -110,5 +124,13 @@ public class ExecuteScript {
 
     public void setStdErr(StdErr stdErr) {
         this.stdErr = stdErr;
+    }
+
+    public void setExcludedCommandIndices(List<Integer> excludedCommandIndices) {
+        this.excludedCommandIndices = excludedCommandIndices;
+    }
+
+    public void setIncludedCommandIndices(List<Integer> includedCommandIndices) {
+        this.includedCommandIndices = includedCommandIndices;
     }
 }
