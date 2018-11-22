@@ -110,12 +110,47 @@ public class ExecuteScript {
 
     private RabbitConfiguration parseConfiguration(Map<String, Object> configurationMap) {
         RabbitConfiguration configuration = new RabbitConfiguration();
+        configuration.setProtocol(parseProtocol(configurationMap));
+        deducePortFromProtocol(configuration, configurationMap);
         configuration.setHost((String) configurationMap.get("host"));
         configuration.setUser((String) configurationMap.get("user"));
         configuration.setPassword((String) configurationMap.get("password"));
         configuration.setVirtualHost((String) configurationMap.get("vhost"));
 
         return configuration;
+    }
+
+    private void deducePortFromProtocol(RabbitConfiguration configuration, Map<String, Object> configurationMap) {
+        Object portObject = configurationMap.get("port");
+        if (portObject instanceof Integer) {
+            int port = (Integer) portObject;
+            configuration.setPort(port);
+            return;
+        } else {
+            switch (configuration.getProtocol()) {
+                case HTTP:
+                    configuration.setPort(RabbitConfiguration.DEFAULT_HTTP_PORT);
+                    break;
+                case HTTPS:
+                    configuration.setPort(RabbitConfiguration.DEFAULT_HTTPS_PORT);
+                    break;
+            }
+        }
+    }
+
+    private RabbitConfiguration.Protocol parseProtocol(Map<String, Object> configurationMap) throws UnknownProtocolException {
+        Object protocolObject = configurationMap.get("protocol");
+        if (!(protocolObject instanceof String)) {
+            return RabbitConfiguration.Protocol.HTTP;
+        }
+        String protocolString = (String) protocolObject;
+
+        try {
+            RabbitConfiguration.Protocol protocol = RabbitConfiguration.Protocol.valueOf(protocolString.toUpperCase());
+            return protocol;
+        } catch (IllegalArgumentException e) {
+            throw new UnknownProtocolException("Unsupported protocol " + protocolString);
+        }
     }
 
     public void setScriptFile(String scriptFile) {

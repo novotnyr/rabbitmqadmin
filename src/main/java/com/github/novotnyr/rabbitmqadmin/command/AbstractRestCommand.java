@@ -18,13 +18,9 @@ import java.lang.reflect.Type;
 public abstract class AbstractRestCommand<T> implements Command<T> {
     public final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private static final int DEFAULT_PORT = 15672;
-
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
     private Gson gson;
-
-    private int port = DEFAULT_PORT;
 
     private RabbitConfiguration rabbitConfiguration;
 
@@ -90,11 +86,15 @@ public abstract class AbstractRestCommand<T> implements Command<T> {
 
     protected StringBuilder getBaseUrl() {
         return new StringBuilder()
-                .append("http://")
+                .append(getProtocol() + "://")
                 .append(getRabbitConfiguration().getHost())
                 .append(":")
-                .append(port)
+                .append(getRabbitConfiguration().getPort())
                 .append("/api");
+    }
+
+    protected String getProtocol() {
+        return this.getRabbitConfiguration().getProtocol().name().toLowerCase();
     }
 
     protected abstract Type getTypeToken();

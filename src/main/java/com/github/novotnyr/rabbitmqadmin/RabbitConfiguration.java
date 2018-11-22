@@ -6,6 +6,10 @@ import static com.rabbitmq.client.ConnectionFactory.DEFAULT_PASS;
 import static com.rabbitmq.client.ConnectionFactory.DEFAULT_USER;
 
 public class RabbitConfiguration {
+    public static final int DEFAULT_HTTP_PORT = 15672;
+
+    public static final int DEFAULT_HTTPS_PORT = 15671;
+
     private String host = DEFAULT_HOST;
 
     private int port = DEFAULT_AMQP_PORT;
@@ -15,6 +19,8 @@ public class RabbitConfiguration {
     private String user = DEFAULT_USER;
 
     private String password = DEFAULT_PASS;
+
+    private Protocol protocol = Protocol.HTTP;
 
     public String getHost() {
         return host;
@@ -56,6 +62,14 @@ public class RabbitConfiguration {
         this.password = password;
     }
 
+    public Protocol getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(Protocol protocol) {
+        this.protocol = protocol;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Rabbit Configuration: ");
@@ -65,5 +79,11 @@ public class RabbitConfiguration {
         sb.append(", user: ").append(user);
         sb.append(", password: ").append(password.replaceAll(".", "*"));
         return sb.toString();
+    }
+
+    public enum Protocol {
+        HTTP,
+        HTTPS,
+        RABBITMQ,
     }
 }
