@@ -35,8 +35,13 @@ public class ExecuteScript {
             Yaml yaml = new Yaml();
             Iterable<Object> documents = (Iterable<Object>) yaml.loadAll(new FileReader(this.scriptFile));
             Iterator<Object> iterator = documents.iterator();
+            RabbitConfiguration rabbitConfiguration;
             Map<String, Object> configuration = (Map<String, Object>) iterator.next();
-            RabbitConfiguration rabbitConfiguration = parseConfiguration(configuration);
+            if (this.rabbitConfiguration != null) {
+                rabbitConfiguration = this.rabbitConfiguration;
+            } else {
+                rabbitConfiguration = parseConfiguration(configuration);
+            }
             script.setConfiguration(rabbitConfiguration);
 
             while (iterator.hasNext()) {
