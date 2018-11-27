@@ -36,7 +36,10 @@ public class GetMessage extends AbstractRestCommand<List<RetrievedMessage>> {
         JsonObject payload = new JsonObject();
         payload.addProperty("count", 1);
         payload.addProperty("encoding", GetMessageRequest.Encoding.AUTO.getCode());
+        // Rabbit 3.6.x compatibility
         payload.addProperty("requeue", "false");
+        // Rabbit 3.7.x compatibility
+        payload.addProperty("ackmode", "ack_requeue_false");
 
         String jsonRequest = getGson().toJson(payload);
         return RequestBody.create(JSON, jsonRequest);
