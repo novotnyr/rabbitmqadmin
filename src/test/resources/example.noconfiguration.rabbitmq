@@ -1,0 +1,17 @@
+---
+---
+publish: amq.default
+routing-key: cabbage
+json: >
+  {
+      "hello" : "hello"
+  }
+reply-to: reply
+---
+publish: amq.default
+routing-key: cabbage
+json: >
+  {
+      "message" : "Message number five"
+  }
+reply-to: reply
