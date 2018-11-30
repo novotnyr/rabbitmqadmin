@@ -44,3 +44,4 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
 !/.mvn/wrapper/maven-wrapper.jar
+/src/test/java/com/github/novotnyr/rabbitmqadmin/RabbitmqAdminTest.java
