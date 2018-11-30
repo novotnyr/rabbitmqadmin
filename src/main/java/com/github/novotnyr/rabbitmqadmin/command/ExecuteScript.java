@@ -3,6 +3,8 @@ package com.github.novotnyr.rabbitmqadmin.command;
 import com.github.novotnyr.rabbitmqadmin.RabbitConfiguration;
 import com.github.novotnyr.rabbitmqadmin.command.script.RabbitConfigurationParser;
 import com.github.novotnyr.rabbitmqadmin.command.script.Script;
+import com.github.novotnyr.rabbitmqadmin.command.script.ScriptOutputSerializer;
+import com.github.novotnyr.rabbitmqadmin.command.script.StdErrOutputSerializer;
 import com.github.novotnyr.rabbitmqadmin.log.StdErr;
 import com.github.novotnyr.rabbitmqadmin.log.SystemErr;
 import org.yaml.snakeyaml.Yaml;
@@ -13,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 public class ExecuteScript {
     private StdErr stdErr = new SystemErr();
@@ -26,6 +29,10 @@ public class ExecuteScript {
     private List<Integer> excludedCommandIndices = new ArrayList<>();
 
     private List<Integer> includedCommandIndices = new ArrayList<>();
+
+    private Map<Class, ScriptOutputSerializer> outputSerializers = new WeakHashMap<>();
+
+    private ScriptOutputSerializer defaultOutputSerializer = new StdErrOutputSerializer(this.stdErr);
 
     public ExecuteScript(RabbitConfiguration rabbitConfiguration) {
         this.rabbitConfiguration = rabbitConfiguration;
@@ -87,10 +94,18 @@ public class ExecuteScript {
             }
             if (includedCommandIndices.isEmpty() || includedCommandIndices.contains(index)) {
                 Object result = command.run();
-                stdErr.println(result.toString());
+                serializeOutput(command.getClass(), result);
             }
             index++;
         }
+    }
+
+    private void serializeOutput(Class<? extends Command> commandClass, Object result) {
+        ScriptOutputSerializer scriptOutputSerializer = this.outputSerializers.get(commandClass);
+        if (scriptOutputSerializer == null) {
+            scriptOutputSerializer = this.defaultOutputSerializer;
+        }
+        scriptOutputSerializer.serialize(null, result);
     }
 
     private PublishToExchange parsePublishToExchange(RabbitConfiguration rabbitConfiguration, Map<String, Object> script) {
@@ -115,6 +130,13 @@ public class ExecuteScript {
         return command;
     }
 
+    public void setDefaultOutputSerializer(ScriptOutputSerializer defaultOutputSerializer) {
+        this.defaultOutputSerializer = defaultOutputSerializer;
+    }
+
+    public void setOutputSerializer(Class commandClass, ScriptOutputSerializer outputSerializer) {
+        this.outputSerializers.put(commandClass, outputSerializer);
+    }
 
     public void setScriptFile(String scriptFile) {
         this.scriptFile = scriptFile;
