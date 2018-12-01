@@ -9,6 +9,7 @@ import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,23 +44,29 @@ public abstract class AbstractRestCommand<T> implements Command<T> {
 
             Request request = buildRequest();
             Response response = client.newCall(request).execute();
-            if(!response.isSuccessful()) {
-                if(response.code() == 401) {
-                    throw new RabbitmqAdminException("Failed to execute REST API call: Access denied");
-                } else {
-                    throw new RabbitmqAdminException("Command failed " + response.body().string());
+            try(ResponseBody responseBody = response.body()) {
+                String responseBodyString = responseBody.string();
+                if(!response.isSuccessful()) {
+                    if(response.code() == 401) {
+                        throw new RabbitmqAdminException("Failed to execute REST API call: Access denied");
+                    } else {
+                        handleFailedResponse(response, responseBodyString);
+                    }
                 }
+                handleRawJson(responseBodyString);
+                Object result = gson.fromJson(responseBodyString, getTypeToken());
+                onComplete();
+                return (T) result;
             }
-
-            String json = response.body().string();
-            handleRawJson(json);
-            Object result = gson.fromJson(json, getTypeToken());
-            onComplete();
-            return (T) result;
         } catch (IOException e) {
             throw new RabbitmqAdminException("Failed to execute REST API call", e);
         }
     }
+
+    protected void handleFailedResponse(Response response, String responseBodyString) {
+        throw new RabbitmqAdminException(("Command failed: " + responseBodyString));
+    }
+
 
     protected void handleRawJson(String json) {
         if (json.contains("not_authorized")) {
