@@ -5,6 +5,7 @@ import com.github.novotnyr.rabbitmqadmin.util.UrlEncoder;
 import com.google.gson.reflect.TypeToken;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.Response;
 
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
@@ -49,6 +50,14 @@ public class PublishToExchange extends AbstractRestCommand<PublishToExchangeResp
         String jsonRequest = getGson().toJson(request);
 
         return RequestBody.create(JSON, jsonRequest);
+    }
+
+    @Override
+    protected void handleFailedResponse(Response response, String responseBodyString) {
+        if (response.code() == 404) {
+            throw new ExchangeOrVirtualHostNotFoundException(this.getVirtualHost(), this.exchange, responseBodyString);
+        }
+        super.handleFailedResponse(response, responseBodyString);
     }
 
     @Override

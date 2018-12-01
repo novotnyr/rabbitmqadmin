@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.Response;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -43,6 +44,14 @@ public class GetMessage extends AbstractRestCommand<List<RetrievedMessage>> {
 
         String jsonRequest = getGson().toJson(payload);
         return RequestBody.create(JSON, jsonRequest);
+    }
+
+    @Override
+    protected void handleFailedResponse(Response response, String responseBodyString) {
+        if (response.code() == 404) {
+            throw new QueueOrVirtualHostNotFoundException(this.getVirtualHost(), this.queue, responseBodyString);
+        }
+        super.handleFailedResponse(response, responseBodyString);
     }
 
     @Override
