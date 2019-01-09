@@ -56,7 +56,9 @@ public class ExecuteScript {
 
             while (iterator.hasNext()) {
                 Map<String, Object> scriptDocument = (Map<String, Object>) iterator.next();
-                if (scriptDocument.containsKey("publish")) {
+                if (scriptDocument == null) {
+                    // usually when script contains three dashes (---) on the last line
+                } else if (scriptDocument.containsKey("publish")) {
                     PublishToExchange publishToExchange = parsePublishToExchange(rabbitConfiguration, scriptDocument);
                     script.append(publishToExchange);
                 } else if (scriptDocument.containsKey("get")) {
