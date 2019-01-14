@@ -10,6 +10,8 @@ import okhttp3.Response;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class PublishToExchange extends AbstractRestCommand<PublishToExchangeResponse> {
     private static final Type TYPE_TOKEN = new TypeToken<PublishToExchangeResponse>(){}.getType();
@@ -23,6 +25,8 @@ public class PublishToExchange extends AbstractRestCommand<PublishToExchangeResp
     private String contentType;
 
     private String replyTo;
+
+    private Map<String, String> headers = new LinkedHashMap<>();
 
     public PublishToExchange(RabbitConfiguration rabbitConfiguration) {
         super(rabbitConfiguration);
@@ -46,6 +50,9 @@ public class PublishToExchange extends AbstractRestCommand<PublishToExchangeResp
         request.setBase64Payload(this.base64Contents);
         request.setContentType(this.contentType);
         request.setReplyTo(this.replyTo);
+        if (! this.headers.isEmpty()) {
+            request.setHeaders(this.headers);
+        }
 
         String jsonRequest = getGson().toJson(request);
 
@@ -93,5 +100,9 @@ public class PublishToExchange extends AbstractRestCommand<PublishToExchangeResp
 
     public void setReplyTo(String replyTo) {
         this.replyTo = replyTo;
+    }
+
+    public void setHeaders(Map<String, String> headers) {
+        this.headers = headers;
     }
 }

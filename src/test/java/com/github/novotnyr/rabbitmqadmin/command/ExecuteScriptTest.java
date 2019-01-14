@@ -30,4 +30,11 @@ public class ExecuteScriptTest {
         });
         executeScript.run();
     }
+
+    @Test
+    public void testPublish() {
+        ExecuteScript executeScript = new ExecuteScript(null);
+        executeScript.setScriptFile("src/test/resources/example.publish.rabbitmq");
+        executeScript.run();
+    }
 }

@@ -2,6 +2,9 @@ package com.github.novotnyr.rabbitmqadmin.command;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 public class RetrievedMessage {
     @SerializedName("payload_bytes")
     private String payloadSize;
@@ -12,6 +15,8 @@ public class RetrievedMessage {
 
     @SerializedName("message_count")
     private String messagesLeftInQueue;
+
+    private Properties properties;
 
     private String payload;
 
@@ -47,6 +52,14 @@ public class RetrievedMessage {
         this.messagesLeftInQueue = messagesLeftInQueue;
     }
 
+    public Properties getProperties() {
+        return properties;
+    }
+
+    public void setProperties(Properties properties) {
+        this.properties = properties;
+    }
+
     public String getPayload() {
         return payload;
     }
@@ -65,5 +78,28 @@ public class RetrievedMessage {
         sb.append(", payload='").append(payload).append('\'');
         sb.append('}');
         return sb.toString();
+    }
+
+    public static class Properties {
+        @SerializedName("delivery_mode")
+        private int deliveryMode;
+
+        private Map<String, String> headers = new LinkedHashMap<>();
+
+        public int getDeliveryMode() {
+            return deliveryMode;
+        }
+
+        public void setDeliveryMode(int deliveryMode) {
+            this.deliveryMode = deliveryMode;
+        }
+
+        public Map<String, String> getHeaders() {
+            return headers;
+        }
+
+        public void setHeaders(Map<String, String> headers) {
+            this.headers = headers;
+        }
     }
 }

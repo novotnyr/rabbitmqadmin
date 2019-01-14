@@ -13,8 +13,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.WeakHashMap;
 
 public class ExecuteScript {
@@ -122,6 +124,17 @@ public class ExecuteScript {
         }
         if (script.containsKey("reply-to")) {
             command.setReplyTo((String) script.get("reply-to"));
+        }
+        if (script.containsKey("headers")) {
+            Object headers = script.get("headers");
+            if (headers instanceof Map) {
+                Map headerMap = (Map) headers;
+                Map<String, String> stringHeaders = new LinkedHashMap<>();
+                //noinspection unchecked
+                headerMap
+                        .forEach((k, v) -> stringHeaders.put(k.toString(), Objects.toString(v)));
+                command.setHeaders(stringHeaders);
+            }
         }
         return command;
     }

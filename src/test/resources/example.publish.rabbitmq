@@ -1,0 +1,18 @@
+---
+host: localhost
+user: guest
+password: guest
+protocol: http
+vhost: /
+---
+publish: amq.default
+routing-key: cabbage
+headers:
+  Correlation-ID: 12cba88f
+  X-Valid: true
+  1: one
+json: >
+  {
+      "hello" : "hello"
+  }
+reply-to: reply

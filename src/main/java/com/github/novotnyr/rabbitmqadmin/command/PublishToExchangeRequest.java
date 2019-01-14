@@ -6,8 +6,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class PublishToExchangeRequest {
-    private Map<String, Object> properties = new LinkedHashMap<>();
-
     @SerializedName("routing_key")
     private String routingKey;
 
@@ -17,13 +15,7 @@ public class PublishToExchangeRequest {
     @SerializedName("payload_encoding")
     private String payloadEncoding = "base64";
 
-    public Map<String, Object> getProperties() {
-        return properties;
-    }
-
-    public void setProperties(Map<String, Object> properties) {
-        this.properties = properties;
-    }
+    private Properties properties = new Properties();
 
     public String getRoutingKey() {
         return routingKey;
@@ -49,13 +41,59 @@ public class PublishToExchangeRequest {
         if (contentType == null) {
             return;
         }
-        this.properties.put("content_type", contentType);
+        this.properties.setContentType(contentType);
     }
 
     public void setReplyTo(String replyTo) {
         if (replyTo == null) {
             return;
         }
-        this.properties.put("reply_to", replyTo);
+        this.properties.setReplyTo(replyTo);
+    }
+
+    public Properties getProperties() {
+        return properties;
+    }
+
+    public void setProperties(Properties properties) {
+        this.properties = properties;
+    }
+
+    public void setHeaders(Map<String, String> headers) {
+        this.properties.setHeaders(headers);
+    }
+
+    public static class Properties {
+        @SerializedName("content_type")
+        private String contentType;
+
+        @SerializedName("reply_to")
+        private String replyTo;
+
+        private Map<String, String> headers = new LinkedHashMap<>();
+
+        public Map<String, String> getHeaders() {
+            return headers;
+        }
+
+        public void setHeaders(Map<String, String> headers) {
+            this.headers = headers;
+        }
+
+        public String getContentType() {
+            return contentType;
+        }
+
+        public void setContentType(String contentType) {
+            this.contentType = contentType;
+        }
+
+        public String getReplyTo() {
+            return replyTo;
+        }
+
+        public void setReplyTo(String replyTo) {
+            this.replyTo = replyTo;
+        }
     }
 }
