@@ -2,6 +2,7 @@ package com.github.novotnyr.rabbitmqadmin.command;
 
 import com.github.novotnyr.rabbitmqadmin.BasicAuthenticator;
 import com.github.novotnyr.rabbitmqadmin.RabbitConfiguration;
+import com.github.novotnyr.rabbitmqadmin.RabbitMqConnectionException;
 import com.github.novotnyr.rabbitmqadmin.RabbitmqAdminException;
 import com.github.novotnyr.rabbitmqadmin.util.LoggingOkHttpInterceptor;
 import com.google.gson.Gson;
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.net.ConnectException;
 
 public abstract class AbstractRestCommand<T> implements Command<T> {
     public final Logger logger = LoggerFactory.getLogger(getClass());
@@ -44,11 +46,11 @@ public abstract class AbstractRestCommand<T> implements Command<T> {
 
             Request request = buildRequest();
             Response response = client.newCall(request).execute();
-            try(ResponseBody responseBody = response.body()) {
+            try (ResponseBody responseBody = response.body()) {
                 String responseBodyString = responseBody.string();
-                if(!response.isSuccessful()) {
-                    if(response.code() == 401) {
-                        throw new RabbitmqAdminException("Failed to execute REST API call: Access denied");
+                if (!response.isSuccessful()) {
+                    if (response.code() == 401) {
+                        throw new RabbitMqAccessDeniedException("Failed to execute REST API call: Access denied");
                     } else {
                         handleFailedResponse(response, responseBodyString);
                     }
@@ -57,6 +59,12 @@ public abstract class AbstractRestCommand<T> implements Command<T> {
                 Object result = gson.fromJson(responseBodyString, getTypeToken());
                 onComplete();
                 return (T) result;
+            }
+        } catch (ConnectException e) {
+            if (this.rabbitConfiguration == null) {
+                throw new RabbitMqConnectionException(e);
+            } else {
+                throw new RabbitMqConnectionException(this.rabbitConfiguration, e);
             }
         } catch (IOException e) {
             throw new RabbitmqAdminException("Failed to execute REST API call", e);
