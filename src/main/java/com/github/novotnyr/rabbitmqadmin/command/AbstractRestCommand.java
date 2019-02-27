@@ -4,6 +4,7 @@ import com.github.novotnyr.rabbitmqadmin.BasicAuthenticator;
 import com.github.novotnyr.rabbitmqadmin.RabbitConfiguration;
 import com.github.novotnyr.rabbitmqadmin.RabbitMqConnectionException;
 import com.github.novotnyr.rabbitmqadmin.RabbitmqAdminException;
+import com.github.novotnyr.rabbitmqadmin.http.InsecureTrustManager;
 import com.github.novotnyr.rabbitmqadmin.util.LoggingOkHttpInterceptor;
 import com.google.gson.Gson;
 import okhttp3.MediaType;
@@ -14,9 +15,14 @@ import okhttp3.ResponseBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.ConnectException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 
 public abstract class AbstractRestCommand<T> implements Command<T> {
     public final Logger logger = LoggerFactory.getLogger(getClass());
@@ -38,11 +44,12 @@ public abstract class AbstractRestCommand<T> implements Command<T> {
 
     public T run() {
         try {
-            OkHttpClient client = new OkHttpClient.Builder()
+            OkHttpClient.Builder builder = new OkHttpClient.Builder()
                     .authenticator(new BasicAuthenticator(rabbitConfiguration.getUser(), rabbitConfiguration.getPassword()))
                     .followRedirects(false)
-                    .addInterceptor(new LoggingOkHttpInterceptor())
-                    .build();
+                    .addInterceptor(new LoggingOkHttpInterceptor());
+            builder = configureTls(builder);
+            OkHttpClient client = builder.build();
 
             Request request = buildRequest();
             Response response = client.newCall(request).execute();
@@ -68,6 +75,25 @@ public abstract class AbstractRestCommand<T> implements Command<T> {
             }
         } catch (IOException e) {
             throw new RabbitmqAdminException("Failed to execute REST API call", e);
+        }
+    }
+
+    protected OkHttpClient.Builder configureTls(OkHttpClient.Builder builder) {
+        if (!this.rabbitConfiguration.isAllowingInsecureTls()) {
+            return builder;
+        }
+
+        try {
+            SSLContext sslContext = SSLContext.getInstance("SSL");
+            sslContext.init(null, InsecureTrustManager.asList(), new SecureRandom());
+            SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+
+            builder.sslSocketFactory(sslSocketFactory);
+            builder.hostnameVerifier((s, sslSession) -> true);
+
+            return builder;
+        } catch (NoSuchAlgorithmException | KeyManagementException e) {
+            throw new RabbitMqConnectionException("Cannot create insecure HTTP client: " + e.getMessage(), e);
         }
     }
 

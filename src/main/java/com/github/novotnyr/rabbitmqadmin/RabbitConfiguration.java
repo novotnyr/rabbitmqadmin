@@ -22,6 +22,8 @@ public class RabbitConfiguration {
 
     private Protocol protocol = Protocol.HTTP;
 
+    private boolean allowingInsecureTls;
+
     public String getHost() {
         return host;
     }
@@ -68,6 +70,14 @@ public class RabbitConfiguration {
 
     public void setProtocol(Protocol protocol) {
         this.protocol = protocol;
+    }
+
+    public boolean isAllowingInsecureTls() {
+        return allowingInsecureTls;
+    }
+
+    public void setAllowingInsecureTls(boolean allowingInsecureTls) {
+        this.allowingInsecureTls = allowingInsecureTls;
     }
 
     @Override
