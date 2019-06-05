@@ -127,7 +127,8 @@ public abstract class AbstractRestCommand<T> implements Command<T> {
 
     protected StringBuilder getBaseUrl() {
         return new StringBuilder()
-                .append(getProtocol() + "://")
+                .append(getProtocol())
+                .append("://")
                 .append(getRabbitConfiguration().getHost())
                 .append(":")
                 .append(getRabbitConfiguration().getPort())
