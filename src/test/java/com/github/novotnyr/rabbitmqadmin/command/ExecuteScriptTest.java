@@ -15,7 +15,7 @@ public class ExecuteScriptTest {
         TypeToken TYPE_TOKEN = new TypeToken<Collection<RetrievedMessage>>(){};
         executeScript.setOutputSerializer(GetMessage.class, new ScriptOutputSerializer<List<RetrievedMessage>>() {
             @Override
-            public void serialize(Class<?> type, List<RetrievedMessage> retrievedMessages) {
+            public void serialize(Command<?> command, List<RetrievedMessage> retrievedMessages) {
                 for (RetrievedMessage message : retrievedMessages) {
                     StringBuilder sb = new StringBuilder();
                     sb.append("Messages left in Queue: ").append(message.getMessagesLeftInQueue()).append("\n");

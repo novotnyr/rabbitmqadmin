@@ -12,7 +12,7 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
 
-public class GetMessage extends AbstractRestCommand<List<RetrievedMessage>> {
+public class GetMessage extends AbstractScriptableCommand<List<RetrievedMessage>> {
     private static final Type TYPE_TOKEN = new TypeToken<Collection<RetrievedMessage>>(){}.getType();
 
     private String queue;

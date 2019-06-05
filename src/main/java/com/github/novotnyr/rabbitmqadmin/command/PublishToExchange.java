@@ -13,7 +13,7 @@ import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class PublishToExchange extends AbstractRestCommand<PublishToExchangeResponse> {
+public class PublishToExchange extends AbstractScriptableCommand<PublishToExchangeResponse> {
     private static final Type TYPE_TOKEN = new TypeToken<PublishToExchangeResponse>(){}.getType();
 
     private String exchange = "amq.default";

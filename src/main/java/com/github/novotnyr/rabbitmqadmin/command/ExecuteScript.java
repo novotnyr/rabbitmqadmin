@@ -98,14 +98,14 @@ public class ExecuteScript {
             }
             if (includedCommandIndices.isEmpty() || includedCommandIndices.contains(index)) {
                 Object result = command.run();
-                serializeOutput(command.getClass(), result);
+                serializeOutput(command, result);
             }
             index++;
         }
     }
 
-    private void serializeOutput(Class<? extends Command> commandClass, Object result) {
-        ScriptOutputSerializer scriptOutputSerializer = this.outputSerializers.get(commandClass);
+    private void serializeOutput(Command<?> command, Object result) {
+        ScriptOutputSerializer scriptOutputSerializer = this.outputSerializers.get(command.getClass());
         if (scriptOutputSerializer == null) {
             scriptOutputSerializer = this.defaultOutputSerializer;
         }
@@ -114,6 +114,7 @@ public class ExecuteScript {
 
     private PublishToExchange parsePublishToExchange(RabbitConfiguration rabbitConfiguration, Map<String, Object> script) {
         PublishToExchange command = new PublishToExchange(rabbitConfiguration);
+        parseDescription(command, script);
         command.setRoutingKey((String) script.get("routing-key"));
         command.setExchange((String) script.get("publish"));
         if (script.containsKey("json")) {
@@ -141,7 +142,16 @@ public class ExecuteScript {
 
     private GetMessage parseGetMessage(RabbitConfiguration rabbitConfiguration, Map<String, Object> script) {
         GetMessage command = new GetMessage(rabbitConfiguration);
+        parseDescription(command, script);
         command.setQueue((String) script.get("get"));
+        return command;
+    }
+
+    private <C extends AbstractScriptableCommand> C parseDescription(C command, Map<String, Object> script) {
+        Object description = script.get("description");
+        if (description instanceof String) {
+            command.setDescription((String) description);
+        }
         return command;
     }
 
