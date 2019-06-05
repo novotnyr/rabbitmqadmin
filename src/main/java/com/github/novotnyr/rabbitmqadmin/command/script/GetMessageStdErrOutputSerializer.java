@@ -1,13 +1,13 @@
 package com.github.novotnyr.rabbitmqadmin.command.script;
 
-import com.github.novotnyr.rabbitmqadmin.command.Command;
+import com.github.novotnyr.rabbitmqadmin.command.GetMessage;
 import com.github.novotnyr.rabbitmqadmin.command.RetrievedMessage;
 import com.github.novotnyr.rabbitmqadmin.log.StdErr;
 
 import java.util.List;
 import java.util.Map;
 
-public class GetMessageStdErrOutputSerializer implements ScriptOutputSerializer<List<RetrievedMessage>> {
+public class GetMessageStdErrOutputSerializer implements ScriptOutputSerializer<GetMessage, List<RetrievedMessage>> {
     private final StdErr stdErr;
 
     public GetMessageStdErrOutputSerializer(StdErr stdErr) {
@@ -15,7 +15,7 @@ public class GetMessageStdErrOutputSerializer implements ScriptOutputSerializer<
     }
 
     @Override
-    public void serialize(Command<?> command, List<RetrievedMessage> retrievedMessages) {
+    public void serialize(GetMessage command, List<RetrievedMessage> retrievedMessages) {
         for (RetrievedMessage message : retrievedMessages) {
             StringBuilder sb = new StringBuilder();
             sb.append("Messages left in Queue: ").append(message.getMessagesLeftInQueue()).append("\n");

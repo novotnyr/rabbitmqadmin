@@ -13,9 +13,9 @@ public class ExecuteScriptTest {
         ExecuteScript executeScript = new ExecuteScript(null);
         executeScript.setScriptFile("src/test/resources/example.get.rabbitmq");
         TypeToken TYPE_TOKEN = new TypeToken<Collection<RetrievedMessage>>(){};
-        executeScript.setOutputSerializer(GetMessage.class, new ScriptOutputSerializer<List<RetrievedMessage>>() {
+        executeScript.setOutputSerializer(GetMessage.class, new ScriptOutputSerializer<GetMessage, List<RetrievedMessage>>() {
             @Override
-            public void serialize(Command<?> command, List<RetrievedMessage> retrievedMessages) {
+            public void serialize(GetMessage command, List<RetrievedMessage> retrievedMessages) {
                 for (RetrievedMessage message : retrievedMessages) {
                     StringBuilder sb = new StringBuilder();
                     sb.append("Messages left in Queue: ").append(message.getMessagesLeftInQueue()).append("\n");
