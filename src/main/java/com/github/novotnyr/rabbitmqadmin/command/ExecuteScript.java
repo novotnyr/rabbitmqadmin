@@ -109,7 +109,7 @@ public class ExecuteScript {
         if (scriptOutputSerializer == null) {
             scriptOutputSerializer = this.defaultOutputSerializer;
         }
-        scriptOutputSerializer.serialize(null, result);
+        scriptOutputSerializer.serialize(command, result);
     }
 
     private PublishToExchange parsePublishToExchange(RabbitConfiguration rabbitConfiguration, Map<String, Object> script) {
