@@ -72,8 +72,16 @@ public class PublishToExchange extends AbstractScriptableCommand<PublishToExchan
         return TYPE_TOKEN;
     }
 
+    public String getExchange() {
+        return exchange;
+    }
+
     public void setExchange(String exchange) {
         this.exchange = exchange;
+    }
+
+    public String getRoutingKey() {
+        return routingKey;
     }
 
     public void setRoutingKey(String routingKey) {
